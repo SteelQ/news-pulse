@@ -61,5 +61,9 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate --ansi || true
       
+      # 代码风格检查
+      - name: Run Pint
+        run: ./vendor/bin/pint --test
+      
       - name: Run tests
         run: composer test
