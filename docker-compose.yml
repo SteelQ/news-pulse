@@ -75,7 +75,7 @@ services:
     networks:
       - news-pulse-network
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8081/api}
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api}
     command: sh -c "npm install && npm run dev"
 
 volumes:

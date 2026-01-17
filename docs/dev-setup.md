@@ -28,8 +28,13 @@ cp frontend/.env.example frontend/.env
 
 根据需要修改 `.env` 文件中的配置项，特别是：
 - `WEB_PORT`: Web 访问端口（默认 8080，如果被占用可改为 8081）
+- `VITE_PORT`: 前端开发端口（默认 5173）
+- `VITE_API_BASE_URL`: 前端 API 地址（需与 `WEB_PORT` 保持一致，默认 `http://localhost:8080/api`）
+- `DB_PORT`: 数据库宿主机端口映射（默认 33060）
+- `DB_DATABASE`: 数据库名
+- `DB_USERNAME`: 数据库用户名
 - `DB_PASSWORD`: 数据库密码
-- `VITE_API_BASE_URL`: 前端 API 地址
+- `DB_ROOT_PASSWORD`: root 密码（仅用于初始化/管理）
 
 ### 2. 启动服务
 
@@ -158,11 +163,12 @@ news-pulse/
 
 ### 端口冲突
 
-如果 8080 或 5173 端口被占用，修改 `.env` 文件中的端口配置：
+如果 8080 或 5173 端口被占用，修改 `.env` 文件中的端口配置，并同步调整 `VITE_API_BASE_URL`：
 
 ```bash
 WEB_PORT=8081
 VITE_PORT=5174
+VITE_API_BASE_URL=http://localhost:8081/api
 ```
 
 ### 权限问题
