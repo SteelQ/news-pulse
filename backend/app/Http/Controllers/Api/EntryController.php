@@ -62,4 +62,26 @@ class EntryController extends Controller
             ],
         ]);
     }
+
+    public function show(Entry $entry): JsonResponse
+    {
+        $entry->load(['source:id,name,type']);
+
+        // 详情接口补充摘要/正文等字段，便于前端展示完整信息。
+        return response()->json([
+            'data' => [
+                'id' => $entry->id,
+                'title' => $entry->title,
+                'url' => $entry->url,
+                'published_at' => $entry->published_at?->toISOString(),
+                'summary' => $entry->summary,
+                'content' => $entry->content,
+                'source' => [
+                    'id' => $entry->source?->id,
+                    'name' => $entry->source?->name,
+                    'type' => $entry->source?->type,
+                ],
+            ],
+        ]);
+    }
 }
