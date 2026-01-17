@@ -187,7 +187,30 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 2. 检查 Nginx 配置是否正确代理到 PHP-FPM
 3. 查看后端日志：`docker compose logs app`
 
+## 测试
+
+### 运行测试
+
+项目采用 TDD（测试驱动开发）工作流，详细规则请参考 [后端 TDD 开发规则](tdd-backend.md)。
+
+```bash
+# 在容器内运行所有测试
+docker compose exec app php artisan test
+
+# 或使用 Composer 脚本
+docker compose exec app composer test
+
+# 运行特定测试文件
+docker compose exec app php artisan test tests/Feature/ExampleTest.php
+```
+
+### CI/CD
+
+项目已配置 GitHub Actions 自动运行测试，每次 push 或 pull request 都会触发测试流程。
+
 ## 下一步
 
 - 查看 [架构设计文档](architecture.md) 了解系统架构
+- 阅读 [后端 TDD 开发规则](tdd-backend.md) 了解开发规范
+- 查看 [项目开发进度追踪](progress.md) 了解当前任务状态
 - 开始开发你的第一个功能模块

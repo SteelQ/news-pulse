@@ -55,6 +55,8 @@ docker compose exec app php artisan migrate
 
 - [项目架构规划](docs/architecture.md)
 - [开发环境设置指南](docs/dev-setup.md)
+- [后端 TDD 开发规则](docs/tdd-backend.md)
+- [项目开发进度追踪](docs/progress.md)
 
 ## 项目结构
 

@@ -1,0 +1,13 @@
+---
+description: "后端 TDD 开发规则（Laravel）"
+globs:
+  - "backend/**"
+alwaysApply: false
+---
+
+- 本项目后端采用 TDD 工作流，必须遵循 Red/Green/Refactor 循环。
+- 新增或修改后端功能时，先写测试再写实现，禁止先实现后补测试。
+- 测试分类与目录：单元测试在 `backend/tests/Unit/`，功能测试在 `backend/tests/Feature/`。
+- 运行测试（容器内优先）：`docker compose exec app php artisan test` 或 `docker compose exec app composer test`。
+- 测试应可重复运行，优先使用 `RefreshDatabase`，外部依赖使用 Mock/Stub。
+- 详细规则与示例请参考 `docs/tdd-backend.md`。
