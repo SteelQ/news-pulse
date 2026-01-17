@@ -30,7 +30,7 @@ class EntryController extends Controller
             })
             ->when($keyword !== '', function ($query) use ($keyword) {
                 // 标题关键字匹配，先满足最小搜索能力。
-                $query->where('title', 'like', '%' . $keyword . '%');
+                $query->where('title', 'like', "%{$keyword}%");
             })
             ->orderByDesc('published_at');
 
