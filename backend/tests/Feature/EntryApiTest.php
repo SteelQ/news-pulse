@@ -131,4 +131,56 @@ class EntryApiTest extends TestCase
             ->assertJsonPath('data.0.title', 'Laravel 新版本发布')
             ->assertJsonPath('data.0.source.id', $primarySource->id);
     }
+
+    public function test_can_show_entry_detail(): void
+    {
+        $source = Source::query()->create([
+            'name' => '官方博客',
+            'type' => 'blog',
+            'feed_url' => 'https://example.com/blog.xml',
+            'is_enabled' => true,
+        ]);
+
+        $publishedAt = now()->subDay();
+        // 详情接口需要返回摘要与内容，便于前端展示。
+        $entry = Entry::query()->create([
+            'source_id' => $source->id,
+            'title' => '详情文章',
+            'url' => 'https://example.com/detail',
+            'published_at' => $publishedAt,
+            'summary' => '摘要内容',
+            'content' => '正文内容',
+            'dedupe_key' => 'dedupe-detail',
+        ]);
+
+        $response = $this->getJson("/api/entries/{$entry->id}");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'title',
+                    'url',
+                    'published_at',
+                    'summary',
+                    'content',
+                    'source' => [
+                        'id',
+                        'name',
+                        'type',
+                    ],
+                ],
+            ])
+            ->assertJsonPath('data.id', $entry->id)
+            ->assertJsonPath('data.title', '详情文章')
+            ->assertJsonPath('data.published_at', $publishedAt->toISOString())
+            ->assertJsonPath('data.source.id', $source->id);
+    }
+
+    public function test_returns_404_when_entry_missing(): void
+    {
+        $response = $this->getJson('/api/entries/999');
+
+        $response->assertNotFound();
+    }
 }
