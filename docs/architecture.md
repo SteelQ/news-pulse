@@ -8,7 +8,7 @@
     *   暂不包含：移动端原生应用、复杂的账号体系、社交功能等。
 
 ## 2. 技术栈与版本（基础设施层面）
-*   **后端**：Laravel 11 / PHP 8.3
+*   **后端**：Laravel 11 / PHP 8.4
 *   **数据库**：MySQL 8.0
 *   **前端**：Vue 3 + Vite (JavaScript)
 *   **基础工具**：Docker / Docker Compose

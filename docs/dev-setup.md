@@ -1,0 +1,193 @@
+# 开发环境设置指南
+
+本文档说明如何在本地开发环境中启动和运行 News Pulse 项目。
+
+## 前置要求
+
+- Docker 20.10+ 
+- Docker Compose 2.0+
+
+**注意**：本项目采用纯 Docker 容器化开发，无需在宿主机安装 PHP、Node.js 或 MySQL。
+
+## 快速开始
+
+### 1. 环境变量配置
+
+复制环境变量示例文件（如果不存在）：
+
+```bash
+# 项目根目录环境变量（Docker Compose 使用）
+cp .env.example .env  # 如果文件不存在
+
+# 后端环境变量
+cp backend/.env.example backend/.env
+
+# 前端环境变量（可选，Vite 会自动读取）
+cp frontend/.env.example frontend/.env
+```
+
+根据需要修改 `.env` 文件中的配置项，特别是：
+- `WEB_PORT`: Web 访问端口（默认 8080，如果被占用可改为 8081）
+- `DB_PASSWORD`: 数据库密码
+- `VITE_API_BASE_URL`: 前端 API 地址
+
+### 2. 启动服务
+
+```bash
+# 构建并启动所有服务
+docker compose up -d
+
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f
+```
+
+### 3. 初始化后端
+
+首次启动需要初始化 Laravel 应用：
+
+```bash
+# 生成应用密钥
+docker compose exec app php artisan key:generate
+
+# 运行数据库迁移（如果已有迁移文件）
+docker compose exec app php artisan migrate
+
+# 设置存储目录权限（容器内已自动处理，如遇问题可手动执行）
+docker compose exec app chmod -R 775 storage bootstrap/cache
+```
+
+### 4. 访问服务
+
+- **后端 API**: http://localhost:8080/api
+- **前端开发服务器**: http://localhost:5173
+- **数据库**: localhost:33060 (如已暴露)
+
+## 开发工作流
+
+### 后端开发（Laravel）
+
+```bash
+# 进入 app 容器
+docker compose exec app bash
+
+# 在容器内执行 Artisan 命令
+docker compose exec app php artisan make:controller ExampleController
+docker compose exec app php artisan make:model Example
+docker compose exec app php artisan migrate
+
+# 查看日志
+docker compose logs -f app
+```
+
+### 前端开发（Vue 3 + Vite）
+
+前端开发服务器在 `node` 容器内自动运行，支持热重载：
+
+```bash
+# 查看前端日志
+docker compose logs -f node
+
+# 如需手动重启前端服务
+docker compose restart node
+```
+
+### 数据库操作
+
+```bash
+# 进入数据库容器
+docker compose exec db mysql -u news_pulse -p news_pulse
+
+# 或使用 root 用户
+docker compose exec db mysql -u root -p
+
+# 执行数据库迁移
+docker compose exec app php artisan migrate
+
+# 回滚迁移
+docker compose exec app php artisan migrate:rollback
+```
+
+## 常用命令
+
+```bash
+# 停止所有服务
+docker compose down
+
+# 停止并删除数据卷（⚠️ 会删除数据库数据）
+docker compose down -v
+
+# 重启特定服务
+docker compose restart app
+docker compose restart web
+docker compose restart node
+
+# 查看服务资源使用情况
+docker compose top
+
+# 进入容器 shell
+docker compose exec app bash
+docker compose exec node sh
+```
+
+## 项目目录结构
+
+```
+news-pulse/
+├── backend/          # Laravel 后端项目
+│   ├── app/          # 应用核心代码
+│   ├── config/       # 配置文件
+│   ├── database/     # 数据库迁移和种子
+│   ├── routes/       # 路由定义
+│   └── .env          # 后端环境变量
+├── frontend/         # Vue 3 + Vite 前端项目
+│   ├── src/          # 源代码
+│   ├── public/       # 静态资源
+│   └── .env          # 前端环境变量
+├── docker/           # Docker 配置文件
+│   ├── nginx/        # Nginx 配置
+│   ├── php/          # PHP 配置
+│   ├── Dockerfile.php
+│   └── Dockerfile.node
+└── docker-compose.yml # Docker Compose 编排文件
+```
+
+## 故障排查
+
+### 端口冲突
+
+如果 8080 或 5173 端口被占用，修改 `.env` 文件中的端口配置：
+
+```bash
+WEB_PORT=8081
+VITE_PORT=5174
+```
+
+### 权限问题
+
+如果遇到文件权限问题：
+
+```bash
+# 修复后端存储目录权限
+docker compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker compose exec app chmod -R 775 storage bootstrap/cache
+```
+
+### 数据库连接失败
+
+1. 检查数据库容器是否正常运行：`docker compose ps db`
+2. 检查环境变量配置是否正确
+3. 查看数据库日志：`docker compose logs db`
+
+### 前端无法访问后端 API
+
+1. 确认 `VITE_API_BASE_URL` 配置正确
+2. 检查 Nginx 配置是否正确代理到 PHP-FPM
+3. 查看后端日志：`docker compose logs app`
+
+## 下一步
+
+- 查看 [架构设计文档](architecture.md) 了解系统架构
+- 开始开发你的第一个功能模块
