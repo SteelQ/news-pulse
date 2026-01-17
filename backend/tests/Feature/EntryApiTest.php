@@ -141,7 +141,8 @@ class EntryApiTest extends TestCase
             'is_enabled' => true,
         ]);
 
-        $publishedAt = now()->subDay();
+        // 数据库存储会截断微秒，测试对齐到秒级精度。
+        $publishedAt = now()->subDay()->setMicrosecond(0);
         // 详情接口需要返回摘要与内容，便于前端展示。
         $entry = Entry::query()->create([
             'source_id' => $source->id,
