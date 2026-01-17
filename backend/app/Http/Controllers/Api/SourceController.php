@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Source;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class SourceController extends Controller
 {
@@ -56,11 +57,11 @@ class SourceController extends Controller
         ]);
     }
 
-    public function destroy(Source $source): JsonResponse
+    public function destroy(Source $source): Response
     {
         // V1 先使用物理删除，后续如需审计再引入软删除。
         $source->delete();
 
-        return response()->json(status: 204);
+        return response()->noContent();
     }
 }
