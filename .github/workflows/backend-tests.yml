@@ -38,25 +38,28 @@ jobs:
           extensions: mbstring, xml, curl, pdo, pdo_mysql, sqlite, pdo_sqlite
           coverage: none
       
-      - name: Copy environment file
+      - name: Create CI environment file
         run: |
-          # 初始化测试环境配置文件
-          if [ ! -f .env ]; then
-            cp .env.example .env || true
-          fi
+          # 生成最小可用 .env，避免空格导致解析失败
+          cat > .env <<'EOF'
+          APP_NAME="News Pulse"
+          APP_ENV=testing
+          APP_KEY=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          LOG_CHANNEL=stack
+          DB_CONNECTION=sqlite
+          DB_DATABASE=:memory:
+          CACHE_STORE=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          EOF
       
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
       
       - name: Generate application key
         run: php artisan key:generate --ansi || true
-      
-      - name: Prepare test environment
-        run: |
-          # 配置测试环境使用 SQLite 内存数据库
-          echo "APP_ENV=testing" >> .env
-          echo "DB_CONNECTION=sqlite" >> .env
-          echo "DB_DATABASE=:memory:" >> .env
       
       - name: Run tests
         run: composer test
