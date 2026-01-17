@@ -33,6 +33,8 @@ class SourceController extends Controller
         ]);
 
         $source = Source::query()->create($validated);
+        // 重新加载模型，补齐数据库默认字段（如 last_fetched_at）。
+        $source->refresh();
 
         return response()->json([
             'data' => $source,
