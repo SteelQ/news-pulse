@@ -32,7 +32,7 @@ class FeedParserTest extends TestCase
 </rss>
 XML;
 
-        $parser = new FeedParser();
+        $parser = new FeedParser;
         $result = $parser->parse($rss);
 
         $this->assertCount(2, $result['items']);
@@ -63,7 +63,7 @@ XML;
 </feed>
 XML;
 
-        $parser = new FeedParser();
+        $parser = new FeedParser;
         $result = $parser->parse($atom);
 
         $this->assertCount(1, $result['items']);

@@ -12,9 +12,7 @@ use Throwable;
 
 class FetchSourceService
 {
-    public function __construct(private readonly FeedParser $parser)
-    {
-    }
+    public function __construct(private readonly FeedParser $parser) {}
 
     /**
      * @return array{created_count: int, warning: ?string}
