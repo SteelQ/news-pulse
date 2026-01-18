@@ -60,6 +60,59 @@ XML;
         );
     }
 
+    public function test_fetch_source_command_skips_updating_existing_entries(): void
+    {
+        Carbon::setTestNow('2026-01-18 10:00:00');
+
+        $source = Source::query()->create([
+            'name' => '官方博客',
+            'type' => 'blog',
+            'feed_url' => 'https://example.com/rss.xml',
+            'is_enabled' => true,
+        ]);
+
+        $url = 'https://example.com/first';
+        // 去重键规则：使用 source_id 与 url 拼接后取 sha1。
+        $dedupeKey = sha1($source->id.'|'.$url);
+
+        Entry::query()->create([
+            'source_id' => $source->id,
+            'title' => '旧标题',
+            'url' => $url,
+            'published_at' => Carbon::parse('2026-01-18 08:00:00'),
+            'summary' => '旧摘要',
+            'content' => null,
+            'dedupe_key' => $dedupeKey,
+        ]);
+
+        $rss = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>示例 RSS</title>
+        <item>
+            <title>新标题</title>
+            <link>https://example.com/first</link>
+            <pubDate>Sat, 18 Jan 2026 08:00:00 GMT</pubDate>
+            <description>新摘要</description>
+        </item>
+    </channel>
+</rss>
+XML;
+
+        Http::fake([
+            $source->feed_url => Http::response($rss, 200),
+        ]);
+
+        $this->artisan('news:fetch-source', ['source_id' => $source->id])
+            ->assertExitCode(0);
+
+        $this->assertSame(1, Entry::query()->count());
+        // 当前版本规则：重复条目仅跳过，不更新已落库的数据。
+        $this->assertSame('旧标题', Entry::query()->value('title'));
+        $this->assertSame('旧摘要', Entry::query()->value('summary'));
+    }
+
     public function test_fetch_source_command_records_failure_on_http_error(): void
     {
         Carbon::setTestNow('2026-01-18 10:00:00');

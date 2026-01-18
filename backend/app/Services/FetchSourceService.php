@@ -35,6 +35,7 @@ class FetchSourceService
                 $dedupeKey = $this->buildDedupeKey($source->id, $item['url']);
 
                 // 通过 dedupe_key 去重，避免重复写入造成脏数据。
+                // 当前版本不更新已存在条目（即使标题变化也跳过），先保证幂等。
                 $entry = Entry::query()->firstOrCreate(
                     ['dedupe_key' => $dedupeKey],
                     [
@@ -90,7 +91,7 @@ class FetchSourceService
 
     private function buildDedupeKey(int $sourceId, string $url): string
     {
-        // 去重键基于来源与链接生成，确保同来源同链接只落一次库。
+        // 去重键规则：source_id 与 url 拼接后取 sha1，确保同来源同链接幂等。
         return sha1($sourceId.'|'.$url);
     }
 }
