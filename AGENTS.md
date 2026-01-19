@@ -1,12 +1,17 @@
 # AGENTS.md
 
-## Commands
-- **Backend tests**: `cd backend && php artisan test` or `docker compose exec app php artisan test`
-- **Single test**: `cd backend && php artisan test --filter=TestClassName` or `--filter=test_method_name`
-- **Backend lint**: `cd backend && ./vendor/bin/pint`
-- **Frontend dev**: `cd frontend && npm run dev`
-- **Frontend build**: `cd frontend && npm run build`
-- **Start all**: `docker-compose up -d`
+## Commands (Docker-only development)
+- **Start all**: `docker compose up -d`
+- **Backend tests**: `docker compose exec app php artisan test`
+- **Single test**: `docker compose exec app php artisan test --filter=TestClassName`
+- **Backend lint**: `docker compose exec app ./vendor/bin/pint`
+- **Frontend dev**: `docker compose exec node npm run dev` (or `docker compose logs -f node`)
+- **Frontend build**: `docker compose exec node npm run build`
+- **Run migrations**: `docker compose exec app php artisan migrate`
+- **Enter app shell**: `docker compose exec app bash`
+- **Enter node shell**: `docker compose exec node sh`
+
+> **Note**: This project uses pure Docker containerized development. Do NOT run php/npm/node commands directly on host.
 
 ## Architecture
 - **Monorepo**: `backend/` (Laravel 11 + PHP 8.4), `frontend/` (Vue 3 + Vite), `docker/` (infra)
