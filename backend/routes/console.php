@@ -5,7 +5,6 @@ use App\Services\FetchSourceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use Throwable;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -23,7 +22,7 @@ Artisan::command('news:fetch-source {source_id}', function (FetchSourceService $
 
     try {
         $result = $fetcher->fetch($source);
-    } catch (Throwable $exception) {
+    } catch (\Throwable $exception) {
         $this->error('采集失败：'.$exception->getMessage());
 
         return 1;
@@ -65,7 +64,7 @@ Artisan::command('news:fetch-enabled-sources', function (FetchSourceService $fet
             }
 
             $this->info($message);
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $failureCount++;
             // 单源失败不影响其它来源，确保整体可继续执行。
             $this->error("来源 {$source->id} 采集失败：{$exception->getMessage()}");
