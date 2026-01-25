@@ -180,6 +180,13 @@ onMounted(() => {
         </button>
       </div>
 
+      <!-- 采集提示：新增来源后执行采集命令 -->
+      <p class="fetch-hint">
+        采集提示：新增来源后，可在终端执行
+        <code>docker compose exec app php artisan news:fetch-source &lt;来源ID&gt;</code>
+        拉取条目（来源 ID 可在列表中查看）。
+      </p>
+
       <!-- 加载态 -->
       <div v-if="loading" class="state-message loading">
         加载中...
@@ -201,6 +208,7 @@ onMounted(() => {
         <table class="source-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>名称</th>
               <th>Feed 地址</th>
               <th>启用状态</th>
@@ -209,6 +217,7 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-for="source in sources" :key="source.id">
+              <td class="id">{{ source.id }}</td>
               <td class="name">{{ source.name }}</td>
               <td class="feed-url">
                 <a :href="source.feed_url" target="_blank" rel="noopener">
@@ -337,6 +346,22 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 
+.fetch-hint {
+  margin: 8px 0 16px;
+  font-size: 13px;
+  color: #555;
+}
+
+.fetch-hint code {
+  margin: 0 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  background: #fff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
 .ghost-button {
   padding: 6px 12px;
   background: #fff;
@@ -387,6 +412,11 @@ onMounted(() => {
   border-bottom: 1px solid #eee;
   text-align: left;
   vertical-align: top;
+}
+
+.source-table .id {
+  width: 64px;
+  color: #666;
 }
 
 .source-table th {

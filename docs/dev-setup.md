@@ -71,6 +71,20 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 - **数据库**: localhost:33060 (如已暴露)
   - 前端开发环境会将 `/api` 请求代理到后端
 
+### 5. 联调快速验证（跑通端到端）
+
+> 目标：让前端列表页能看到真实条目，并可进入详情页查看。
+
+1. 进入前端「来源管理」页面，新增一个 RSS/Atom 来源（例如 Laravel News）。
+2. 在来源列表中找到该来源的 **ID**。
+3. 在终端执行采集命令：
+
+```bash
+docker compose exec app php artisan news:fetch-source <来源ID>
+```
+
+4. 打开「内容列表」页面，刷新即可看到最新条目，点击进入详情页验证展示。
+
 ## 开发工作流
 
 ### 后端开发（Laravel）
