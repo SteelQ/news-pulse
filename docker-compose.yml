@@ -75,7 +75,8 @@ services:
     networks:
       - news-pulse-network
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080/api}
+      # 默认使用相对路径，确保走 Vite 代理避免跨域
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}
     command: sh -c "npm install && npm run dev"
 
 volumes:
