@@ -71,6 +71,28 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 - **数据库**: localhost:33060 (如已暴露)
   - 前端开发环境会将 `/api` 请求代理到后端
 
+### 4.1 发布/生产模式（最小方案）
+
+> 目标：单端口对外访问，前端由 Nginx 托管，API 走 `/api` 反代。
+
+1. 构建前端产物（容器内执行）：
+
+```bash
+docker compose exec node npm run build
+```
+
+2. 构建产物默认输出到 `frontend/dist`，并通过 Nginx 挂载至 `/usr/share/nginx/html`。
+
+3. 访问入口（单端口）：
+   - **前端入口**: http://localhost:${WEB_PORT:-8080}
+   - **后端 API**: http://localhost:${WEB_PORT:-8080}/api
+
+4. 若更新前端产物，重新构建后重启 Nginx：
+
+```bash
+docker compose restart web
+```
+
 ### 5. 联调快速验证（跑通端到端）
 
 > 目标：让前端列表页能看到真实条目，并可进入详情页查看。
