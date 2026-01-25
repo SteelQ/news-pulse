@@ -3,8 +3,8 @@
  * 统一封装所有 HTTP 请求，baseURL 来自环境变量 VITE_API_BASE_URL
  */
 
-// API 基础地址，从环境变量读取，默认指向本地开发服务器
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+// API 基础地址，从环境变量读取，未配置时默认使用同源 /api
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 /**
  * 通用请求方法

@@ -29,7 +29,7 @@ cp frontend/.env.example frontend/.env
 根据需要修改 `.env` 文件中的配置项，特别是：
 - `WEB_PORT`: Web 访问端口（默认 8080，如果被占用可改为 8081）
 - `VITE_PORT`: 前端开发端口（默认 5173）
-- `VITE_API_BASE_URL`: 前端 API 地址（需与 `WEB_PORT` 保持一致，默认 `http://localhost:8080/api`）
+- `VITE_API_BASE_URL`: 前端 API 地址（默认 `/api`，Vite 会代理到 Nginx）
 - `DB_PORT`: 数据库宿主机端口映射（默认 33060）
 - `DB_DATABASE`: 数据库名
 - `DB_USERNAME`: 数据库用户名
@@ -69,6 +69,7 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 - **后端 API**: http://localhost:8080/api
 - **前端开发服务器**: http://localhost:5173
 - **数据库**: localhost:33060 (如已暴露)
+  - 前端开发环境会将 `/api` 请求代理到后端
 
 ## 开发工作流
 
@@ -163,12 +164,12 @@ news-pulse/
 
 ### 端口冲突
 
-如果 8080 或 5173 端口被占用，修改 `.env` 文件中的端口配置，并同步调整 `VITE_API_BASE_URL`：
+如果 8080 或 5173 端口被占用，修改 `.env` 文件中的端口配置即可，`VITE_API_BASE_URL` 默认 `/api` 无需随端口变更：
 
 ```bash
 WEB_PORT=8081
 VITE_PORT=5174
-VITE_API_BASE_URL=http://localhost:8081/api
+VITE_API_BASE_URL=/api
 ```
 
 ### 权限问题
@@ -189,7 +190,7 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 
 ### 前端无法访问后端 API
 
-1. 确认 `VITE_API_BASE_URL` 配置正确
+1. 确认 `VITE_API_BASE_URL` 配置正确（默认 `/api`）
 2. 检查 Nginx 配置是否正确代理到 PHP-FPM
 3. 查看后端日志：`docker compose logs app`
 

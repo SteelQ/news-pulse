@@ -11,5 +11,12 @@ export default defineConfig({
     watch: {
       usePolling: true, // Docker 文件系统监听优化
     },
+    // 代理后端 API，避免本地开发时的跨域问题
+    proxy: {
+      '/api': {
+        target: 'http://web',
+        changeOrigin: true,
+      },
+    },
   },
 })
