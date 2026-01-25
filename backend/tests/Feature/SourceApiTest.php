@@ -117,6 +117,24 @@ class SourceApiTest extends TestCase
         ]);
     }
 
+    public function test_update_source_rejects_invalid_feed_url(): void
+    {
+        $source = Source::query()->create([
+            'name' => '待更新来源',
+            'type' => 'blog',
+            'feed_url' => 'https://example.com/old.xml',
+            'is_enabled' => true,
+        ]);
+
+        // 无效 URL 需要被拦截，避免脏数据进入系统。
+        $response = $this->patchJson("/api/sources/{$source->id}", [
+            'feed_url' => 'not-a-url',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['feed_url']);
+    }
+
     public function test_can_delete_source(): void
     {
         $source = Source::query()->create([

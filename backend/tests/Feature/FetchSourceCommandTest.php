@@ -14,6 +14,16 @@ class FetchSourceCommandTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_fetch_source_command_returns_error_when_source_missing(): void
+    {
+        // 来源不存在时应直接返回错误，且不写入采集记录。
+        $this->artisan('news:fetch-source', ['source_id' => 999])
+            ->assertExitCode(1);
+
+        $this->assertSame(0, Entry::query()->count());
+        $this->assertSame(0, FetchRun::query()->count());
+    }
+
     public function test_fetch_source_command_persists_entries_and_dedupes(): void
     {
         Carbon::setTestNow('2026-01-18 10:00:00');
@@ -58,6 +68,31 @@ XML;
             Carbon::now()->toISOString(),
             $source->fresh()->last_fetched_at->toISOString()
         );
+    }
+
+    public function test_fetch_source_command_records_failure_on_invalid_feed(): void
+    {
+        Carbon::setTestNow('2026-01-18 10:00:00');
+
+        $source = Source::query()->create([
+            'name' => '异常来源',
+            'type' => 'blog',
+            'feed_url' => 'https://example.com/invalid.xml',
+            'is_enabled' => true,
+        ]);
+
+        Http::fake([
+            $source->feed_url => Http::response('<invalid', 200),
+        ]);
+
+        // XML 无法解析时应记录失败，方便排查数据质量问题。
+        $this->artisan('news:fetch-source', ['source_id' => $source->id])
+            ->assertExitCode(1);
+
+        $this->assertSame(0, Entry::query()->count());
+        $this->assertSame(1, FetchRun::query()->count());
+        $this->assertSame('failed', FetchRun::query()->value('status'));
+        $this->assertStringContainsString('Feed XML 无法解析', FetchRun::query()->value('error_message'));
     }
 
     public function test_fetch_source_command_skips_updating_existing_entries(): void
