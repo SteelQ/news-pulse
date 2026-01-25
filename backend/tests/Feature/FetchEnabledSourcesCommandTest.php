@@ -32,6 +32,17 @@ class FetchEnabledSourcesCommandTest extends TestCase
 XML;
     }
 
+    public function test_fetch_enabled_sources_command_exits_when_no_enabled_sources(): void
+    {
+        Http::preventStrayRequests();
+
+        // 未启用任何来源时应直接退出，避免无意义请求。
+        $this->artisan('news:fetch-enabled-sources')
+            ->assertExitCode(0);
+
+        $this->assertSame(0, FetchRun::query()->count());
+    }
+
     public function test_fetch_enabled_sources_command_continues_on_failure(): void
     {
         Carbon::setTestNow('2026-01-18 10:00:00');

@@ -132,6 +132,55 @@ class EntryApiTest extends TestCase
             ->assertJsonPath('data.0.source.id', $primarySource->id);
     }
 
+    public function test_per_page_is_clamped_with_min_and_max_limits(): void
+    {
+        $source = Source::query()->create([
+            'name' => '官方博客',
+            'type' => 'blog',
+            'feed_url' => 'https://example.com/blog.xml',
+            'is_enabled' => true,
+        ]);
+
+        Entry::query()->create([
+            'source_id' => $source->id,
+            'title' => '第一条',
+            'url' => 'https://example.com/first',
+            'published_at' => now()->subDays(2),
+            'summary' => null,
+            'content' => null,
+            'dedupe_key' => 'dedupe-first',
+        ]);
+        Entry::query()->create([
+            'source_id' => $source->id,
+            'title' => '第二条',
+            'url' => 'https://example.com/second',
+            'published_at' => now()->subDay(),
+            'summary' => null,
+            'content' => null,
+            'dedupe_key' => 'dedupe-second',
+        ]);
+        Entry::query()->create([
+            'source_id' => $source->id,
+            'title' => '第三条',
+            'url' => 'https://example.com/third',
+            'published_at' => now(),
+            'summary' => null,
+            'content' => null,
+            'dedupe_key' => 'dedupe-third',
+        ]);
+
+        // per_page 过小或过大时需要被限制，避免接口被滥用。
+        $response = $this->getJson('/api/entries?per_page=0');
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonCount(1, 'data');
+
+        $response = $this->getJson('/api/entries?per_page=100');
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 50)
+            ->assertJsonCount(3, 'data');
+    }
+
     public function test_can_show_entry_detail(): void
     {
         $source = Source::query()->create([
